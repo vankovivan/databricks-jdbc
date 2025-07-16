@@ -3,11 +3,11 @@ package com.databricks.jdbc.telemetry;
 import static com.databricks.jdbc.common.util.WildcardUtil.isNullOrEmpty;
 
 import com.databricks.jdbc.api.internal.IDatabricksConnectionContext;
-import com.databricks.jdbc.api.internal.IDatabricksSession;
 import com.databricks.jdbc.common.DatabricksClientConfiguratorManager;
 import com.databricks.jdbc.common.safe.DatabricksDriverFeatureFlagsContextFactory;
 import com.databricks.jdbc.common.util.DatabricksThreadContextHolder;
 import com.databricks.jdbc.common.util.DriverUtil;
+import com.databricks.jdbc.common.util.ProcessNameUtil;
 import com.databricks.jdbc.common.util.StringUtil;
 import com.databricks.jdbc.exception.DatabricksParsingException;
 import com.databricks.jdbc.log.JdbcLogger;
@@ -46,6 +46,7 @@ public class TelemetryHelper {
           .setOsArch(System.getProperty("os.arch"))
           .setOsVersion(System.getProperty("os.version"))
           .setOsName(System.getProperty("os.name"))
+          .setProcessName(ProcessNameUtil.getProcessName())
           .setClientAppName(null);
 
   public static DriverSystemConfiguration getDriverSystemConfiguration() {
@@ -150,9 +151,6 @@ public class TelemetryHelper {
         DatabricksThreadContextHolder.getStatementId(),
         DatabricksThreadContextHolder.getSessionId());
   }
-
-  public static void exportPollingLatency(
-      long pollingLatencyMillis, IDatabricksSession session, String statementId) {}
 
   public static void exportChunkLatencyTelemetry(ChunkDetails chunkDetails, String statementId) {
     if (chunkDetails == null) {
