@@ -1,7 +1,5 @@
 package com.databricks.jdbc.telemetry.latency;
 
-import static com.databricks.jdbc.telemetry.TelemetryHelper.exportLatencyLog;
-
 import com.databricks.jdbc.log.JdbcLogger;
 import com.databricks.jdbc.log.JdbcLoggerFactory;
 import java.lang.reflect.InvocationHandler;
@@ -76,7 +74,8 @@ public class DatabricksMetricsTimedProcessor {
               argsStr,
               executionTimeMillis);
           try {
-            exportLatencyLog(executionTimeMillis);
+            TelemetryCollector.getInstance()
+                .recordOperationLatency(executionTimeMillis, methodName);
           } catch (Exception e) {
             LOGGER.trace(
                 "Failed to export latency metrics for method {}: {}", methodName, e.getMessage());
