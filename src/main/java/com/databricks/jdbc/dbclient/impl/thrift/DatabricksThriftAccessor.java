@@ -308,6 +308,10 @@ final class DatabricksThriftAccessor {
       // Polling for operation status
       statusResp = getOperationStatus(statusReq, statementId);
       checkOperationStatusForErrors(statusResp);
+      // Save some time if sleep isn't required by breaking.
+      if (!shouldContinuePolling(statusResp)) {
+        break;
+      }
       try {
         TimeUnit.MILLISECONDS.sleep(asyncPollIntervalMillis);
       } catch (InterruptedException e) {
@@ -762,7 +766,7 @@ final class DatabricksThriftAccessor {
         statementId,
         operationStatusLatencyMillis);
     TelemetryCollector.getInstance()
-        .recordGetOperationStatus(statementId.toString(), operationStatusLatencyMillis);
+        .recordGetOperationStatus(statementId.toSQLExecStatementId(), operationStatusLatencyMillis);
     return operationStatus;
   }
 }

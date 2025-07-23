@@ -47,7 +47,7 @@ public class TelemetryClientFactory {
               new TelemetryClient(
                   connectionContext, getTelemetryExecutorService(), databricksConfig));
     }
-    // Use noauth telemetry client if connection creation failed.
+    // Use no-auth telemetry client if connection creation failed.
     return noauthTelemetryClients.computeIfAbsent(
         connectionContext.getConnectionUuid(),
         k -> new TelemetryClient(connectionContext, getTelemetryExecutorService()));
@@ -68,9 +68,8 @@ public class TelemetryClientFactory {
   @VisibleForTesting
   public void reset() {
     // Close all existing clients
-    telemetryClients.values().forEach(client -> client.close());
-
-    noauthTelemetryClients.values().forEach(client -> client.close());
+    telemetryClients.values().forEach(TelemetryClient::close);
+    noauthTelemetryClients.values().forEach(TelemetryClient::close);
 
     // Clear the maps
     telemetryClients.clear();

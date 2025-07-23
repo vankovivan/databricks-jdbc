@@ -1,5 +1,6 @@
 package com.databricks.jdbc.model.telemetry;
 
+import com.databricks.jdbc.model.telemetry.enums.ExecutionResultFormat;
 import com.databricks.jdbc.model.telemetry.latency.ChunkDetails;
 import com.databricks.jdbc.model.telemetry.latency.OperationDetail;
 import com.databricks.jdbc.model.telemetry.latency.OperationType;
@@ -13,6 +14,7 @@ public class StatementTelemetryDetails {
   private final OperationDetail operationDetail;
   private Long operationLatencyMillis;
   private final String statementId;
+  ExecutionResultFormat executionResultFormat;
 
   /*
    * TODO :
@@ -91,15 +93,15 @@ public class StatementTelemetryDetails {
   }
 
   public void recordResultSetIteration(Long totalChunks, boolean hasNext) {
-    if (totalChunks != null && totalChunks > 0) {
-      this.recordChunkIteration(totalChunks);
-    }
+    this.chunkDetails.setTotalChunksPresent(totalChunks);
     this.resultLatency.markResultSetConsumption(hasNext);
   }
 
-  public void recordOperationLatency(long latencyMillis, OperationType operationType) {
+  public StatementTelemetryDetails recordOperationLatency(
+      long latencyMillis, OperationType operationType) {
     this.operationDetail.setOperationType(operationType);
     this.operationLatencyMillis = latencyMillis;
+    return this;
   }
 
   public void recordGetOperationStatusLatency(long latencyMillis) {
@@ -108,5 +110,15 @@ public class StatementTelemetryDetails {
 
   public Long getOperationLatencyMillis() {
     return operationLatencyMillis;
+  }
+
+  public StatementTelemetryDetails setExecutionResultFormat(
+      ExecutionResultFormat executionResultFormat) {
+    this.executionResultFormat = executionResultFormat;
+    return this;
+  }
+
+  public ExecutionResultFormat getExecutionResultFormat() {
+    return executionResultFormat;
   }
 }

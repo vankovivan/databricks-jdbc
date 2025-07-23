@@ -94,12 +94,6 @@ public class TelemetryClient implements ITelemetryClient {
     scheduledExecutorService.shutdown();
   }
 
-  @Override
-  public void closeStatement(String statementId) {
-    TelemetryCollector.getInstance().exportTelemetryDetailsAndClear(statementId);
-    flush();
-  }
-
   private void flush() {
     synchronized (this) {
       if (!eventsBatch.isEmpty()) {

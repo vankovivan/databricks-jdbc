@@ -9,6 +9,7 @@ import com.databricks.jdbc.common.util.DatabricksThreadContextHolder;
 import com.databricks.jdbc.common.util.DriverUtil;
 import com.databricks.jdbc.common.util.ProcessNameUtil;
 import com.databricks.jdbc.common.util.StringUtil;
+import com.databricks.jdbc.dbclient.impl.common.StatementId;
 import com.databricks.jdbc.exception.DatabricksParsingException;
 import com.databricks.jdbc.log.JdbcLogger;
 import com.databricks.jdbc.log.JdbcLoggerFactory;
@@ -70,26 +71,6 @@ public class TelemetryHelper {
             .isFeatureEnabled(TELEMETRY_FEATURE_FLAG_NAME);
   }
 
-  public static void exportInitialTelemetryLog(IDatabricksConnectionContext connectionContext) {
-    if (getDriverConnectionParameter(connectionContext) == null) {
-      return;
-    }
-    TelemetryFrontendLog telemetryFrontendLog =
-        new TelemetryFrontendLog()
-            .setFrontendLogEventId(getEventUUID())
-            .setContext(getLogContext())
-            .setEntry(
-                new FrontendLogEntry()
-                    .setSqlDriverLog(
-                        new TelemetryEvent()
-                            .setDriverConnectionParameters(
-                                getDriverConnectionParameter(connectionContext))
-                            .setDriverSystemConfiguration(getDriverSystemConfiguration())));
-    TelemetryClientFactory.getInstance()
-        .getTelemetryClient(connectionContext)
-        .exportEvent(telemetryFrontendLog);
-  }
-
   public static void exportTelemetryLog(StatementTelemetryDetails telemetryDetails) {
     exportTelemetryEvent(
         DatabricksThreadContextHolder.getConnectionContext(), telemetryDetails, null, null);
@@ -117,6 +98,7 @@ public class TelemetryHelper {
             .setChunkDetails(telemetryDetails.getChunkDetails())
             .setResultLatency(telemetryDetails.getResultLatency())
             .setOperationDetail(telemetryDetails.getOperationDetail())
+            .setExecutionResultFormat(telemetryDetails.getExecutionResultFormat())
             .setChunkId(chunkIndex); // This is only set for chunk download failure logs
     telemetryEvent.setSqlOperation(sqlExecutionEvent);
 
@@ -148,6 +130,12 @@ public class TelemetryHelper {
     DriverErrorInfo errorInfo =
         new DriverErrorInfo().setErrorName(errorName).setStackTrace(errorMessage);
     exportTelemetryEvent(connectionContext, telemetryDetails, errorInfo, chunkIndex);
+  }
+
+  public static String getStatementIdString(StatementId statementId) {
+    return statementId != null
+        ? statementId.toSQLExecStatementId()
+        : DatabricksThreadContextHolder.getStatementId();
   }
 
   private static DriverConnectionParameters getDriverConnectionParameter(
@@ -292,6 +280,8 @@ public class TelemetryHelper {
         return OperationType.CLOSE_STATEMENT;
       case "cancelStatement":
         return OperationType.CANCEL_STATEMENT;
+      case "deleteSession":
+        return OperationType.DELETE_SESSION;
       case "listCrossReferences":
         return OperationType.LIST_CROSS_REFERENCES;
       case "listExportedKeys":

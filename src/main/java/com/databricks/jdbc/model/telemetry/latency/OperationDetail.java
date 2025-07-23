@@ -27,10 +27,8 @@ public class OperationDetail {
   }
 
   public void addOperationStatusLatencyMillis(Long latencyMillis) {
-    if (latencyMillis != null) {
-      this.operationStatusLatencyMillis += latencyMillis;
-      this.nOperationStatusCalls++;
-    }
+    this.operationStatusLatencyMillis += latencyMillis;
+    this.nOperationStatusCalls++;
   }
 
   public OperationDetail setOperationType(OperationType operationType) {
