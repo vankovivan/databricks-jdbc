@@ -2,6 +2,8 @@ package com.databricks.jdbc.common.util;
 
 import static com.databricks.jdbc.common.DatabricksJdbcConstants.*;
 
+import com.databricks.jdbc.common.DatabricksJdbcUrlParams;
+import com.databricks.jdbc.common.error.DatabricksVendorCodes;
 import com.databricks.jdbc.exception.DatabricksHttpException;
 import com.databricks.jdbc.exception.DatabricksSQLException;
 import com.databricks.jdbc.exception.DatabricksValidationException;
@@ -89,5 +91,40 @@ public class ValidationUtil {
 
     // check if path in URL matches any of the specific patterns
     return PATH_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(url).matches());
+  }
+
+  /**
+   * Validates all input properties for JDBC connection parameters. This method serves as a central
+   * validation entry point, consolidating all property validations in one place for better
+   * maintainability and extensibility.
+   *
+   * @param parameters Map of JDBC connection parameters to validate
+   * @throws DatabricksSQLException if any validation fails
+   */
+  public static void validateInputProperties(Map<String, String> parameters)
+      throws DatabricksSQLException {
+    // Validate UID parameter
+    validateUidParameter(parameters);
+
+    // Future property validations can be added here
+  }
+
+  /**
+   * Validates the UID parameter in JDBC connection properties. UID must either be omitted or set to
+   * "token".
+   *
+   * @param parameters Map of JDBC connection parameters
+   * @throws DatabricksSQLException if UID validation fails
+   */
+  public static void validateUidParameter(Map<String, String> parameters)
+      throws DatabricksSQLException {
+    String uid = parameters.get(DatabricksJdbcUrlParams.UID.getParamName());
+    // UID must either be omitted or set to "token"
+    if (uid != null && !uid.equals(VALID_UID_VALUE)) {
+      LOGGER.error(DatabricksVendorCodes.INCORRECT_UID.getMessage());
+      throw new DatabricksValidationException(
+          DatabricksVendorCodes.INCORRECT_UID.getMessage(),
+          DatabricksVendorCodes.INCORRECT_UID.getCode());
+    }
   }
 }
