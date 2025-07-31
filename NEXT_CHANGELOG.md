@@ -21,6 +21,7 @@
 - Fixed Bouncy Castle registration conflicts by using local provider instance instead of global security registration.
 - Fixed Azure U2M authentication issue.
 - Fixed unchecked exception thrown in delete session
+- Fixed ParameterMetaData.getParameterCount() to return total parameter count from SQL parsing instead of bound parameter count, aligning with JDBC standards
 
 ---
 *Note: When making changes, please add your change under the appropriate section with a brief description.* 
