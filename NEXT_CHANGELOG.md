@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Added support for providing custom HTTP options: `HttpMaxConnectionsPerRoute` and `HttpConnectionRequestTimeout`.
 
 ### Updated
 
