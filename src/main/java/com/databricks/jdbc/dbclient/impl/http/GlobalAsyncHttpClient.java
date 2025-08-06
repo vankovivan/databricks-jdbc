@@ -96,7 +96,7 @@ public class GlobalAsyncHttpClient {
               .setIOReactorConfig(ioReactorConfig)
               .setConnectionManager(connectionManager);
       if (DriverUtil.isRunningAgainstFake()) {
-        setFakeServiceRouteInAsyncHttpClient(builder);
+        setTestingRouteInAsyncHttpClient(builder);
       }
       client = builder.build();
       client.start();
@@ -107,49 +107,6 @@ public class GlobalAsyncHttpClient {
               TimeValue.of(EVICTION_CHECK_INTERVAL_SECONDS, TimeUnit.SECONDS),
               TimeValue.of(IDLE_CONNECTION_TIMEOUT_SECONDS, TimeUnit.SECONDS));
       connectionEvictor.start();
-    }
-
-    /**
-     * Configures a custom route planner in the {@link HttpAsyncClientBuilder} to handle routing
-     * between actual services and their fake service counterparts during testing.
-     *
-     * <p>The route planner implements the following logic:
-     *
-     * <ul>
-     *   <li>For localhost requests, direct routing is used without any proxy
-     *   <li>For other hosts, looks up a fake service URI from system properties using the pattern
-     *       {@code [target-uri] + FAKE_SERVICE_URI_PROP_SUFFIX} and sets it as a proxy
-     * </ul>
-     *
-     * @param builder The {@link HttpAsyncClientBuilder} to be configured with the custom route
-     *     planner
-     */
-    private void setFakeServiceRouteInAsyncHttpClient(HttpAsyncClientBuilder builder) {
-      builder.setRoutePlanner(
-          (host, context) -> {
-            final HttpHost target;
-            target =
-                new HttpHost(
-                    host.getSchemeName(),
-                    host.getHostName(),
-                    DefaultSchemePortResolver.INSTANCE.resolve(host));
-
-            // If the target host is localhost, then no need to set proxy
-            if ("localhost".equalsIgnoreCase(host.getHostName())) {
-              return new HttpRoute(target, null, false);
-            }
-
-            // Get the fake service URI for the target URI and set it as proxy
-            final HttpHost proxy;
-            try {
-              proxy =
-                  HttpHost.create(System.getProperty(host.toURI() + FAKE_SERVICE_URI_PROP_SUFFIX));
-            } catch (URISyntaxException e) {
-              throw new HttpException(e.getMessage());
-            }
-
-            return new HttpRoute(target, null, proxy, false);
-          });
     }
 
     CloseableHttpAsyncClient getClient() {
@@ -178,6 +135,49 @@ public class GlobalAsyncHttpClient {
       connectionEvictor.shutdown();
       client.close(CloseMode.GRACEFUL);
       connectionManager.close();
+    }
+
+    /**
+     * Configures a custom route planner in the {@link HttpAsyncClientBuilder} to handle routing
+     * between actual services and their fake service counterparts during testing.
+     *
+     * <p>The route planner implements the following logic:
+     *
+     * <ul>
+     *   <li>For localhost requests, direct routing is used without any proxy
+     *   <li>For other hosts, looks up a fake service URI from system properties using the pattern
+     *       {@code [target-uri] + FAKE_SERVICE_URI_PROP_SUFFIX} and sets it as a proxy
+     * </ul>
+     *
+     * @param builder The {@link HttpAsyncClientBuilder} to be configured with the custom route
+     *     planner
+     */
+    void setTestingRouteInAsyncHttpClient(HttpAsyncClientBuilder builder) {
+      builder.setRoutePlanner(
+          (host, context) -> {
+            final HttpHost target;
+            target =
+                new HttpHost(
+                    host.getSchemeName(),
+                    host.getHostName(),
+                    DefaultSchemePortResolver.INSTANCE.resolve(host));
+
+            // If the target host is localhost, then no need to set proxy
+            if ("localhost".equalsIgnoreCase(host.getHostName())) {
+              return new HttpRoute(target, null, false);
+            }
+
+            // Get the fake service URI for the target URI and set it as proxy
+            final HttpHost proxy;
+            try {
+              proxy =
+                  HttpHost.create(System.getProperty(host.toURI() + FAKE_SERVICE_URI_PROP_SUFFIX));
+            } catch (URISyntaxException e) {
+              throw new HttpException(e.getMessage());
+            }
+
+            return new HttpRoute(target, null, proxy, false);
+          });
     }
   }
 }
