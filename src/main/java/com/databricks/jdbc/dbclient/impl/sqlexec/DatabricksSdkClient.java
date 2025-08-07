@@ -505,7 +505,7 @@ public class DatabricksSdkClient implements IDatabricksClient {
           .setWaitTimeout(SYNC_TIMEOUT_VALUE)
           .setOnWaitTimeout(ExecuteStatementRequestOnWaitTimeout.CONTINUE);
     }
-    if (maxRows != DEFAULT_RESULT_ROW_LIMIT) {
+    if (maxRows > 0) {
       request.setRowLimit(maxRows);
     }
     return request;
