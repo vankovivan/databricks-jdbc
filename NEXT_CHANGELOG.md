@@ -10,6 +10,7 @@ AbstractArrowResultChunk
 ### Updated
 
 ### Fixed
+- Fixed Statement.getUpdateCount to return -1 for non-DML queries.
 - Fixed Statement.setMaxRows(0) to be interepeted as no limit.
 - Fixed retry behaviour to not throw an exception when there is no retry-after header for 503 and 429 status codes.
 ---
