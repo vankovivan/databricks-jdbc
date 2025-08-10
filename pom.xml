@@ -616,7 +616,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.3.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -629,7 +629,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.6.0</version>
+            <version>3.8.0</version>
             <configuration>
               <doclint>none</doclint>
               <sourcepath>${project.build.sourceDirectory}:${project.build.directory}/generated-sources/annotations</sourcepath>
@@ -647,71 +647,46 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
+            <configuration>
+              <gpgArguments>
+                <arg>--batch</arg>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+                <arg>--no-tty</arg>
+                <arg>--yes</arg>
+              </gpgArguments>
+              <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+              <!-- Custom reduced pom file for fat jar -->
+              <pomFile>${project.basedir}/uber-minimal-pom.xml</pomFile>
+              <sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
+              <javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
+              <files>${project.build.directory}/${project.build.finalName}-thin.jar</files>
+              <types>jar</types>
+              <classifiers>thin</classifiers>
+            </configuration>
             <executions>
               <execution>
+                <id>sign-artifacts</id>
                 <goals>
-                  <!-- Refer: https://maven.apache.org/plugins/maven-gpg-plugin/sign-and-deploy-file-mojo.html -->
-                  <goal>sign-and-deploy-file</goal>
+                  <goal>sign</goal>
                 </goals>
-                <phase>deploy</phase>
-                <configuration>
-                  <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                  <repositoryId>ossrh</repositoryId>
-                  <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                  <!-- Prevent gpg from using pinentry programs -->
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                  <!-- Custom reduced pom file for fat jar -->
-                  <pomFile>${project.basedir}/uber-minimal-pom.xml</pomFile>
-                  <sources>${project.build.directory}/${project.build.finalName}-sources.jar</sources>
-                  <javadoc>${project.build.directory}/${project.build.finalName}-javadoc.jar</javadoc>
-                  <files>${project.build.directory}/${project.build.finalName}-thin.jar</files>
-                  <types>jar</types>
-                  <classifiers>thin</classifiers>
-                </configuration>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <version>2.8.2</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <extensions>true</extensions>
             <configuration>
-              <skip>true</skip>
+             <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
-<!--          <plugin>-->
-<!--            <groupId>org.sonatype.plugins</groupId>-->
-<!--            <artifactId>nexus-staging-maven-plugin</artifactId>-->
-<!--            <version>1.6.13</version>-->
-<!--            <extensions>true</extensions>-->
-<!--            <configuration>-->
-<!--              <serverId>ossrh</serverId>-->
-<!--              <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
-<!--              <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
-<!--              <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>-->
-<!--            </configuration>-->
-<!--            <executions>-->
-<!--              <execution>-->
-<!--                <id>nexus-deploy</id>-->
-<!--                <phase>deploy</phase>-->
-<!--                <goals>-->
-<!--                  <goal>close</goal>-->
-<!--                  <goal>release</goal>-->
-<!--                </goals>-->
-<!--              </execution>-->
-<!--            </executions>-->
-<!--          </plugin>-->
         </plugins>
       </build>
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-      </distributionManagement>
     </profile>
   </profiles>
 </project>
