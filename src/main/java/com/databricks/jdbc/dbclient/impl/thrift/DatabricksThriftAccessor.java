@@ -223,6 +223,11 @@ final class DatabricksThriftAccessor {
       checkResponseForErrors(response);
 
       StatementId statementId = new StatementId(response.getOperationHandle().operationId);
+      LOGGER.debug(
+          "Executed statement for statementId {} in session {}",
+          statementId.toSQLExecStatementId(),
+          session.getSessionId());
+
       DatabricksThreadContextHolder.setStatementId(statementId);
       if (parentStatement != null) {
         parentStatement.setStatementId(statementId);
@@ -288,9 +293,11 @@ final class DatabricksThriftAccessor {
 
     TGetOperationStatusResp statusResp = null;
     if (response.isSetDirectResults()) {
-      checkDirectResultsForErrorStatus(response.getDirectResults(), response.toString());
+      checkDirectResultsForErrorStatus(
+          response.getDirectResults(), response.toString(), statementId.toSQLExecStatementId());
       statusResp = response.getDirectResults().getOperationStatus();
-      checkOperationStatusForErrors(statusResp);
+      checkOperationStatusForErrors(
+          statusResp, StatementId.loggableStatementId(response.getOperationHandle()));
     }
 
     TimeoutHandler timeoutHandler = getTimeoutHandler(response, timeoutInSeconds);
@@ -307,7 +314,7 @@ final class DatabricksThriftAccessor {
 
       // Polling for operation status
       statusResp = getOperationStatus(statusReq, statementId);
-      checkOperationStatusForErrors(statusResp);
+      checkOperationStatusForErrors(statusResp, statementId.toSQLExecStatementId());
       // Save some time if sleep isn't required by breaking.
       if (!shouldContinuePolling(statusResp)) {
         break;
@@ -364,6 +371,10 @@ final class DatabricksThriftAccessor {
       }
     }
     StatementId statementId = new StatementId(response.getOperationHandle().operationId);
+    LOGGER.debug(
+        String.format(
+            "Executed statement in async for statementId [%s] in session [%s]",
+            statementId.toSQLExecStatementId(), session.getSessionId()));
     DatabricksThreadContextHolder.setStatementId(statementId);
     if (parentStatement != null) {
       parentStatement.setStatementId(statementId);
@@ -379,7 +390,8 @@ final class DatabricksThriftAccessor {
       IDatabricksStatementInternal parentStatement,
       IDatabricksSession session)
       throws SQLException {
-    LOGGER.debug("Operation handle {}", operationHandle);
+    LOGGER.debug(
+        "getStatementResult for StatementId {}", StatementId.loggableStatementId(operationHandle));
 
     long getStatementResultStartTime = System.nanoTime();
     StatementId statementId = new StatementId(operationHandle.getOperationId());
@@ -492,7 +504,8 @@ final class DatabricksThriftAccessor {
       int maxRowsPerBlock,
       boolean fetchMetadata)
       throws DatabricksHttpException {
-    verifySuccessStatus(responseStatus, context);
+    String statementId = StatementId.loggableStatementId(operationHandle);
+    verifySuccessStatus(responseStatus, context, statementId);
     TFetchResultsReq request =
         new TFetchResultsReq()
             .setOperationHandle(operationHandle)
@@ -519,7 +532,8 @@ final class DatabricksThriftAccessor {
         response.getStatus(),
         String.format(
             "Error while fetching results Request {%s}. TFetchResultsResp {%s}. ",
-            request, response));
+            request, response),
+        statementId);
     return response;
   }
 
@@ -628,18 +642,25 @@ final class DatabricksThriftAccessor {
     // Get the operation status from direct results if present
     TGetOperationStatusResp statusResp = null;
     FResp directResultsField = response.fieldForId(directResultsFieldId);
-    if (response.isSet(directResultsField)) {
-      TSparkDirectResults directResults =
-          (TSparkDirectResults) response.getFieldValue(directResultsField);
-      checkDirectResultsForErrorStatus(directResults, contextDescription);
-      statusResp = directResults.getOperationStatus();
-      checkOperationStatusForErrors(statusResp);
-    }
 
     // Get the operation handle from the response
     FResp operationHandleField = response.fieldForId(operationHandleFieldId);
     TOperationHandle operationHandle =
-        (TOperationHandle) response.getFieldValue(operationHandleField);
+        response.isSet(operationHandleField)
+            ? (TOperationHandle) response.getFieldValue(operationHandleField)
+            : null;
+    String statementId =
+        (operationHandle != null) ? StatementId.loggableStatementId(operationHandle) : "null";
+
+    if (response.isSet(directResultsField)) {
+      TSparkDirectResults directResults =
+          (TSparkDirectResults) response.getFieldValue(directResultsField);
+      checkDirectResultsForErrorStatus(directResults, contextDescription, statementId);
+      statusResp = directResults.getOperationStatus();
+      checkOperationStatusForErrors(statusResp, statementId);
+    }
+
+    LOGGER.debug("Poll for operation status for statementId: {}", statementId);
 
     // Polling until query operation state is finished
     TGetOperationStatusReq statusReq =
@@ -648,7 +669,7 @@ final class DatabricksThriftAccessor {
             .setGetProgressUpdate(false);
     while (shouldContinuePolling(statusResp)) {
       statusResp = getThriftClient().GetOperationStatus(statusReq);
-      checkOperationStatusForErrors(statusResp);
+      checkOperationStatusForErrors(statusResp, statementId);
     }
 
     if (hasResultDataInDirectResults(response)) {
@@ -687,13 +708,15 @@ final class DatabricksThriftAccessor {
     }
   }
 
-  private void checkOperationStatusForErrors(TGetOperationStatusResp statusResp)
+  private void checkOperationStatusForErrors(TGetOperationStatusResp statusResp, String statementId)
       throws DatabricksSQLException {
     if (statusResp != null
         && statusResp.isSetOperationState()
         && isErrorOperationState(statusResp.getOperationState())) {
       String errorMsg =
-          String.format("Operation failed with error: %s", statusResp.getErrorMessage());
+          String.format(
+              "Operation failed with error: [%s] for statement [%s], with response [%s]",
+              statusResp.getErrorMessage(), statementId, statusResp);
       LOGGER.error(errorMsg);
       throw new DatabricksSQLException(errorMsg, statusResp.getSqlState());
     }

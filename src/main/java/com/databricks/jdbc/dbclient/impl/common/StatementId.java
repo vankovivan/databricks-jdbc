@@ -8,6 +8,7 @@ import com.databricks.jdbc.exception.DatabricksDriverException;
 import com.databricks.jdbc.log.JdbcLogger;
 import com.databricks.jdbc.log.JdbcLoggerFactory;
 import com.databricks.jdbc.model.client.thrift.generated.THandleIdentifier;
+import com.databricks.jdbc.model.client.thrift.generated.TOperationHandle;
 import java.util.Objects;
 
 /** A Statement-Id identifier to uniquely identify an executed statement */
@@ -75,6 +76,14 @@ public class StatementId {
   /** Returns a SQL Exec statement handle for the given StatementId */
   public String toSQLExecStatementId() {
     return guid;
+  }
+
+  /**
+   * Returns a loggable statement Id for the given Thrift operation handle. This is used for logging
+   * purposes to avoid logging sensitive information.
+   */
+  public static String loggableStatementId(TOperationHandle operationHandle) {
+    return new StatementId(operationHandle.getOperationId()).toSQLExecStatementId();
   }
 
   @Override

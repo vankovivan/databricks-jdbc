@@ -321,7 +321,10 @@ public class DatabricksThriftUtilTest {
   @ParameterizedTest
   @MethodSource("thriftDirectResultSets")
   public void testCheckDirectResultsForErrorStatus(TSparkDirectResults response) {
-    assertDoesNotThrow(() -> checkDirectResultsForErrorStatus(response, TEST_STRING));
+    assertDoesNotThrow(
+        () ->
+            checkDirectResultsForErrorStatus(
+                response, TEST_STRING, TEST_STATEMENT_ID.toSQLExecStatementId()));
   }
 
   @Test
