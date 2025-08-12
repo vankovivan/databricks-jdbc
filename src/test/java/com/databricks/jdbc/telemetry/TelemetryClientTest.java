@@ -218,6 +218,9 @@ public class TelemetryClientTest {
           new TelemetryFrontendLog()
               .setFrontendLogEventId("event2")); // This should trigger flush due to batch size
 
+      // assert that the flush occurred
+      assertEquals(0, client.getCurrentSize());
+
       // Wait 2 seconds (less than the flush interval)
       Thread.sleep(2000);
 
@@ -227,11 +230,13 @@ public class TelemetryClientTest {
       // Verify it's still in the batch (shouldn't have been flushed yet since timer was reset)
       assertEquals(1, client.getCurrentSize());
 
-      // Wait another 2 seconds (still less than full interval from last flush)
-      Thread.sleep(2000);
+      // Wait another 5 seconds (still less than full interval from last flush)
+      // NOTE: Ideally flush should happen just after 3 seconds but considering the thread switch
+      // timings adding a buffer of 6 more seconds
+      Thread.sleep(5000);
 
-      // Verify it's still not flushed
-      assertEquals(1, client.getCurrentSize());
+      // Verify it's  flushed
+      assertEquals(0, client.getCurrentSize());
 
     } finally {
       // Clean up resources

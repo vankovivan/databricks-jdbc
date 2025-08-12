@@ -68,7 +68,7 @@ public class TelemetryClient implements ITelemetryClient {
   private void periodicFlush() {
     long now = System.currentTimeMillis();
     if (now - lastFlushedTime >= flushIntervalMillis) {
-      flush();
+      flush(true);
     }
   }
 
@@ -78,8 +78,8 @@ public class TelemetryClient implements ITelemetryClient {
       eventsBatch.add(event);
     }
 
-    if (eventsBatch.size() == eventsBatchSize) {
-      flush();
+    if (isBatchFull()) {
+      flush(false);
     }
   }
 
@@ -87,16 +87,20 @@ public class TelemetryClient implements ITelemetryClient {
   public void close() {
     // Export any pending latency telemetry before flushing
     TelemetryCollector.getInstance().exportAllPendingTelemetryDetails();
-    flush();
+    flush(true);
     if (flushTask != null) {
       flushTask.cancel(false);
     }
     scheduledExecutorService.shutdown();
   }
 
-  private void flush() {
+  /**
+   * @param forceFlush - Flushes the eventsBatch for all size variations if forceFlush, otherwise
+   *     only flushes if eventsBatch size has breached
+   */
+  private void flush(boolean forceFlush) {
     synchronized (this) {
-      if (!eventsBatch.isEmpty()) {
+      if (!forceFlush ? isBatchFull() : !eventsBatch.isEmpty()) {
         List<TelemetryFrontendLog> logsToBeFlushed = eventsBatch;
         executorService.submit(
             new TelemetryPushTask(logsToBeFlushed, isAuthEnabled, context, databricksConfig));
@@ -110,5 +114,9 @@ public class TelemetryClient implements ITelemetryClient {
     synchronized (this) {
       return eventsBatch.size();
     }
+  }
+
+  private boolean isBatchFull() {
+    return eventsBatch.size() >= eventsBatchSize;
   }
 }
