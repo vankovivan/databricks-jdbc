@@ -36,7 +36,7 @@ public class TelemetryCollectorTest {
     String statementId = TEST_STATEMENT_ID;
     handler.recordChunkDownloadLatency(statementId, 0, 100);
     handler.recordChunkDownloadLatency(statementId, 1, 200);
-    ChunkDetails details = handler.getTelemetryDetails(statementId).getChunkDetails();
+    ChunkDetails details = handler.getOrCreateTelemetryDetails(statementId).getChunkDetails();
     assertNotNull(details);
     assertEquals(100L, details.getInitialChunkLatencyMillis());
     assertEquals(200L, details.getSlowestChunkLatencyMillis());
@@ -46,7 +46,7 @@ public class TelemetryCollectorTest {
   @Test
   void testRecordChunkDownloadLatency_WithNullStatementId_DoesNothing() {
     handler.recordChunkDownloadLatency(null, 0, 100);
-    assertNull(handler.getTelemetryDetails(null));
+    assertNull(handler.getOrCreateTelemetryDetails(null));
   }
 
   @ParameterizedTest
@@ -55,10 +55,18 @@ public class TelemetryCollectorTest {
     handler.recordChunkDownloadLatency(statementId, 0, 50); // ensure entry exists
     handler.recordChunkIteration(statementId, chunkIndex);
     assertEquals(
-        1L, handler.getTelemetryDetails(statementId).getChunkDetails().getTotalChunksIterated());
+        1L,
+        handler
+            .getOrCreateTelemetryDetails(statementId)
+            .getChunkDetails()
+            .getTotalChunksIterated());
     handler.recordChunkIteration(statementId, chunkIndex + 1);
     assertEquals(
-        2L, handler.getTelemetryDetails(statementId).getChunkDetails().getTotalChunksIterated());
+        2L,
+        handler
+            .getOrCreateTelemetryDetails(statementId)
+            .getChunkDetails()
+            .getTotalChunksIterated());
   }
 
   @Test
@@ -82,5 +90,31 @@ public class TelemetryCollectorTest {
             || operationType == OperationType.CANCEL_STATEMENT
             || operationType == OperationType.DELETE_SESSION;
     assertEquals(expected, handler.isCloseOperation(operationType));
+  }
+
+  @Test
+  void testReturnsNullIfStatementIdIsNull() {
+    assertNull(handler.getOrCreateTelemetryDetails(null));
+  }
+
+  @Test
+  void testCreatesNewTelemetryDetailsIfAbsent() {
+    String statementId = TEST_STATEMENT_ID;
+    StatementTelemetryDetails details = handler.getOrCreateTelemetryDetails(statementId);
+
+    assertNotNull(details);
+    assertEquals(statementId, details.getStatementId());
+    assertSame(details, handler.getOrCreateTelemetryDetails(statementId));
+  }
+
+  @Test
+  void testReturnsExistingTelemetryDetailsIfPresent() {
+    String statementId = TEST_STATEMENT_ID;
+    handler.recordGetOperationStatus(statementId, 1000L);
+    assertNotNull(handler.getOrCreateTelemetryDetails(statementId));
+    StatementTelemetryDetails existing = handler.getOrCreateTelemetryDetails(statementId);
+    StatementTelemetryDetails result = handler.getOrCreateTelemetryDetails(statementId);
+    assertSame(existing, result);
+    assertEquals(statementId, result.getStatementId());
   }
 }

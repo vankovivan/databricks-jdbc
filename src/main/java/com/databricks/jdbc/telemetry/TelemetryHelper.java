@@ -126,7 +126,7 @@ public class TelemetryHelper {
       String statementId,
       Long chunkIndex) {
     StatementTelemetryDetails telemetryDetails =
-        TelemetryCollector.getInstance().getTelemetryDetails(statementId);
+        TelemetryCollector.getInstance().getOrCreateTelemetryDetails(statementId);
     DriverErrorInfo errorInfo =
         new DriverErrorInfo().setErrorName(errorName).setStackTrace(errorMessage);
     exportTelemetryEvent(connectionContext, telemetryDetails, errorInfo, chunkIndex);
