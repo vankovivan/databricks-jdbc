@@ -342,6 +342,9 @@ public interface IDatabricksConnectionContext {
   /** Returns the flush interval in milliseconds for telemetry */
   int getTelemetryFlushIntervalInMilliseconds();
 
+  /** Returns whether circuit breaker is enabled for telemetry */
+  boolean isTelemetryCircuitBreakerEnabled();
+
   /** Returns the maximum number of HTTP connections per route */
   int getHttpMaxConnectionsPerRoute();
 

@@ -927,6 +927,11 @@ public class DatabricksConnectionContext implements IDatabricksConnectionContext
   }
 
   @Override
+  public boolean isTelemetryCircuitBreakerEnabled() {
+    return getParameter(DatabricksJdbcUrlParams.TELEMETRY_CIRCUIT_BREAKER_ENABLED).equals("1");
+  }
+
+  @Override
   public int getHttpMaxConnectionsPerRoute() {
     int maxConnectionsPerRoute = DEFAULT_MAX_HTTP_CONNECTIONS_PER_ROUTE;
     try {
