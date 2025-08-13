@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Run Maven spotless to auto-format (if needed)
+mvn spotless:apply
+
+# Check if there are any changes after formatting
+if ! git diff --quiet; then
+    echo
+    echo "========================================================================"
+    echo "✨ Spotless applied formatting changes after your commit."
+    echo "There are uncommitted changes in your working directory."
+    echo "Please 'git add' and 'git commit' these to include formatting changes."
+    echo "========================================================================"
+    echo
+    # Optional: show the changed files
+    git status --short
+else
+    echo
+    echo "✓ Spotless checked: No further formatting changes needed after commit."
+    echo
+fi

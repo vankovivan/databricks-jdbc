@@ -91,6 +91,14 @@ Additional git and GitHub resources:
 We recommend using IntelliJ to develop the Databricks JDBC Driver. You can download the community edition [here](https://www.jetbrains.com/idea/download/).
 Once you have IntelliJ installed, open the Databricks JDBC Driver project by selecting `File -> Open` and selecting the
 `databricks-jdbc` folder. Ensure that you have the Maven plugin loaded.
+- Git Hooks - To ensure commit quality and enforce project policies (such as with our new post-commit hook), you must install the git hooks contained in scripts/githooks.
+  Please run the following command after cloning the repository:
+  ```bash
+    chmod +x ./scripts/setup-git-hooks.sh
+  ````
+  ``` bash
+    ./scripts/setup-git-hooks.sh
+  ```
 
 ## Debugging
 
