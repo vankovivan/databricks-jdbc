@@ -81,7 +81,8 @@ public final class DatabricksJdbcConstants {
           "READ_ONLY_EXTERNAL_METASTORE", "false",
           "STATEMENT_TIMEOUT", "0",
           "TIMEZONE", "UTC",
-          "USE_CACHED_RESULT", "true");
+          "USE_CACHED_RESULT", "true",
+          "QUERY_TAGS", "");
   public static final Set<String> ALLOWED_CLIENT_INFO_PROPERTIES =
       Set.of(
           ALLOWED_VOLUME_INGESTION_PATHS,

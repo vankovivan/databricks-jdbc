@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Query Tags support**: Added ability to attach key-value tags to SQL queries for analytical purposes that would appear in `system.query.history` table. Example: `jdbc:databricks://host;QUERY_TAGS=team:marketing,dashboard:abc123`. 
 
 ### Updated
 
