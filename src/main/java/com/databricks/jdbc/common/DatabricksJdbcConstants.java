@@ -164,6 +164,12 @@ public final class DatabricksJdbcConstants {
       Pattern.compile("^(\\s*\\()*\\s*REMOVE", Pattern.CASE_INSENSITIVE);
   public static final Pattern LIST_PATTERN =
       Pattern.compile("^(\\s*\\()*\\s*LIST", Pattern.CASE_INSENSITIVE);
+  // Regex: match queries starting with "BEGIN" but not followed by "TRANSACTION"
+  // (?i)         -> case-insensitive
+  // ^\s*BEGIN    -> string starts with BEGIN (allow leading whitespace)
+  // (?!\s*TRANSACTION\b) -> negative lookahead: not followed by optional spaces + "TRANSACTION"
+  public static final Pattern BEGIN_PATTERN_FOR_SQL_SCRIPT =
+      Pattern.compile("(?i)^\\s*BEGIN(?!\\s*TRANSACTION\\b)");
   public static final String DEFAULT_USERNAME =
       "token"; // This is for PAT. We do not support Basic Auth.
   public static final int DEFAULT_MAX_HTTP_CONNECTIONS_PER_ROUTE = 1000;
