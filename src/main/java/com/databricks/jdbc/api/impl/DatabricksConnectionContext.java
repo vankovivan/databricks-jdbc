@@ -216,6 +216,11 @@ public class DatabricksConnectionContext implements IDatabricksConnectionContext
   }
 
   @Override
+  public String getHost() {
+    return this.host;
+  }
+
+  @Override
   public IDatabricksComputeResource getComputeResource() {
     return computeResource;
   }

@@ -18,6 +18,13 @@ public interface IDatabricksConnectionContext {
   String getHostUrl() throws DatabricksParsingException;
 
   /**
+   * Returns just the host parsed from JDBC connection. Note : this is not the url.
+   *
+   * @return Databricks host
+   */
+  String getHost();
+
+  /**
    * Returns warehouse-Id as parsed from JDBC connection Url
    *
    * @return warehouse-Id
