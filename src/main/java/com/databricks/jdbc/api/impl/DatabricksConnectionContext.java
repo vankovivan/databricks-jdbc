@@ -1025,4 +1025,9 @@ public class DatabricksConnectionContext implements IDatabricksConnectionContext
     return Math.max(
         1000, Integer.parseInt(getParameter(DatabricksJdbcUrlParams.TELEMETRY_FLUSH_INTERVAL)));
   }
+
+  @Override
+  public boolean isBatchedInsertsEnabled() {
+    return getParameter(DatabricksJdbcUrlParams.ENABLE_BATCHED_INSERTS).equals("1");
+  }
 }
