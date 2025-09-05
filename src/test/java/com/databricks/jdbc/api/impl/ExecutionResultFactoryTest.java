@@ -101,7 +101,7 @@ public class ExecutionResultFactoryTest {
     when(fetchResultsResp.getResultSetMetadata()).thenReturn(resultSetMetadataResp);
     IExecutionResult result =
         ExecutionResultFactory.getResultSet(fetchResultsResp, session, parentStatement);
-    assertInstanceOf(InlineJsonResult.class, result);
+    assertInstanceOf(LazyThriftResult.class, result);
   }
 
   @Test
