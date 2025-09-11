@@ -980,6 +980,13 @@ public class DatabricksDatabaseMetaData implements DatabaseMetaData {
   public ResultSet getTables(
       String catalog, String schemaPattern, String tableNamePattern, String[] types)
       throws SQLException {
+
+    if (tableNamePattern != null) {
+      // Making tableNamePattern case-insensitive because the table name is stored as lower case in
+      // information schema
+      tableNamePattern = tableNamePattern.toLowerCase();
+    }
+
     LOGGER.debug(
         "public ResultSet getTables(String catalog = {}, String schemaPattern = {}, String tableNamePattern = {}, String[] types = {})",
         catalog,
