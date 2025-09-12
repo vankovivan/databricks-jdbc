@@ -2,6 +2,7 @@ package com.databricks.jdbc.dbclient.impl.common;
 
 import static com.databricks.jdbc.common.MetadataResultConstants.*;
 import static com.databricks.jdbc.common.util.DatabricksTypeUtil.INTERVAL;
+import static com.databricks.jdbc.common.util.WildcardUtil.isNullOrEmpty;
 import static com.databricks.jdbc.dbclient.impl.common.CommandConstants.*;
 import static com.databricks.jdbc.dbclient.impl.common.TypeValConstants.*;
 
@@ -212,8 +213,13 @@ public class MetadataResultSetBuilder {
                 } else {
                   object = "NO";
                 }
-              } else if (mappedColumn.getColumnName().equals(DECIMAL_DIGITS_COLUMN.getColumnName())
-                  || mappedColumn.getColumnName().equals(NUM_PREC_RADIX_COLUMN.getColumnName())) {
+              } else if (mappedColumn
+                  .getColumnName()
+                  .equals(DECIMAL_DIGITS_COLUMN.getColumnName())) {
+                object = getUpdatedDecimalDigits(stripBaseTypeName(typeVal), object);
+              } else if (mappedColumn
+                  .getColumnName()
+                  .equals(NUM_PREC_RADIX_COLUMN.getColumnName())) {
                 if (object == null) {
                   object = 0;
                 }
@@ -422,6 +428,37 @@ public class MetadataResultSetBuilder {
     }
     int sqlType = getCode(stripBaseTypeName(typeVal));
     return getSizeInBytes(sqlType);
+  }
+
+  /**
+   * Overrides DECIMAL_DIGITS value for specific data types. Returns non-zero only for DECIMAL,
+   * NUMERIC, TIMESTAMP, and TIMESTAMP_NTZ.
+   *
+   * @param baseTypeVal the column type name
+   * @param scaleObject the original scale value (can be null)
+   * @return scale value for DECIMAL/NUMERIC, 9 for TIMESTAMP types, 0 otherwise
+   * @example
+   *     <pre>
+   * getUpdatedDecimalDigits("DECIMAL", 2) → 2
+   * getUpdatedDecimalDigits("TIMESTAMP", 6) → 9
+   * getUpdatedDecimalDigits("FLOAT", 7) → 0
+   * </pre>
+   */
+  int getUpdatedDecimalDigits(String baseTypeVal, Object scaleObject) {
+    if (scaleObject == null) {
+      return 0;
+    }
+    int scale = (int) scaleObject;
+    if (isNullOrEmpty(baseTypeVal)) {
+      return 0;
+    }
+    if (baseTypeVal.contains(DECIMAL_TYPE) || baseTypeVal.contains(NUMERIC_TYPE)) {
+      return scale;
+    }
+    if (baseTypeVal.contains(TIMESTAMP_TYPE) || baseTypeVal.contains(TIMESTAMP_NTZ_TYPE)) {
+      return 9;
+    }
+    return 0;
   }
 
   /**
@@ -891,8 +928,10 @@ public class MetadataResultSetBuilder {
                   object = "YES";
                 }
               }
-              if (column.getColumnName().equals(DECIMAL_DIGITS_COLUMN.getColumnName())
-                  || column.getColumnName().equals(NUM_PREC_RADIX_COLUMN.getColumnName())) {
+              if (column.getColumnName().equals(DECIMAL_DIGITS_COLUMN.getColumnName())) {
+                object = getUpdatedDecimalDigits(stripBaseTypeName(typeVal), object);
+              }
+              if (column.getColumnName().equals(NUM_PREC_RADIX_COLUMN.getColumnName())) {
                 if (object == null) {
                   object = 0;
                 }
