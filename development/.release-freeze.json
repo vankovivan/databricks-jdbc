@@ -1,5 +1,5 @@
 {
   "freeze": true,
   "reason": "Releasing JDBC - 16th Sep",
-  "allow_list": ["jayantsing-db/default-max-rows-per-block", "ResultSetMetadataFix"]
+  "allow_list": ["jayantsing-db/default-max-rows-per-block", "ResultSetMetadataFix", "PECOBLR-951"]
 }
