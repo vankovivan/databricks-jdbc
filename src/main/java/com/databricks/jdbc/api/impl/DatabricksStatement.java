@@ -720,7 +720,15 @@ public class DatabricksStatement implements IDatabricksStatement, IDatabricksSta
               : futureResultSet.get(timeoutInSeconds, TimeUnit.SECONDS);
     } catch (TimeoutException e) {
       if (closeStatement) {
-        close(); // Close the statement
+        try {
+          close(); // Close the statement
+        } catch (SQLException sqlExceptionForClose) {
+          LOGGER.error(
+              sqlExceptionForClose,
+              String.format(
+                  "Error occurred while closing statement after timeout. StatementId %s",
+                  statementId));
+        }
       }
       String timeoutErrorMessage =
           String.format(
