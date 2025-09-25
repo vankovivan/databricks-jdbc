@@ -5,6 +5,7 @@
 ### Added
 
 ### Updated
+- Telemetry data is now captured more efficiently and consistently due to enhancements in the log and connection close flush logic.
 
 ### Fixed
 - Fixed state leaking issue in thrift client.
