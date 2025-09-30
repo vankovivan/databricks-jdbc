@@ -698,6 +698,8 @@
              <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
               <waitUntil>published</waitUntil>
+              <!-- Use minimal POM for fat jar publishing -->
+              <pomFile>${project.basedir}/uber-minimal-pom.xml</pomFile>
             </configuration>
           </plugin>
         </plugins>

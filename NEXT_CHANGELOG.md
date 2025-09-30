@@ -13,5 +13,6 @@
 - Fixed state leaking issue in thrift client.
 - Fixed timestamp values returning only milliseconds instead of the full nanosecond precision.
 - Fixed Statement.getUpdateCount() for DML queries.
+- Fixed Maven Central publishing to use minimal POM for both main and thin JARs, restoring behavior from v1.0.7 and earlier
 ---
 *Note: When making changes, please add your change under the appropriate section with a brief description.* 
