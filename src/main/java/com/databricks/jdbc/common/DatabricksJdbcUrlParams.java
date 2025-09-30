@@ -162,7 +162,8 @@ public enum DatabricksJdbcUrlParams {
   ENABLE_SQL_VALIDATION_FOR_IS_VALID(
       "EnableSQLValidationForIsValid",
       "Enable SQL query execution for connection validation in isValid() method",
-      "0");
+      "0"),
+  IGNORE_TRANSACTIONS("IgnoreTransactions", "Ignore transaction-related method calls", "0");
 
   private final String paramName;
   private final String defaultValue;
