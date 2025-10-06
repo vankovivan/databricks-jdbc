@@ -390,7 +390,7 @@
       <plugin>
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>12.1.1</version>
+        <version>12.1.6</version>
         <configuration>
           <formats>
             <format>HTML</format>
@@ -404,6 +404,9 @@
           <nvdApiKey>${nvd.api.key}</nvdApiKey>
           <nvdMaxRetryCount>10</nvdMaxRetryCount>
           <nvdApiDelay>4000</nvdApiDelay>
+          <ossindexAnalyzerEnabled>true</ossindexAnalyzerEnabled>
+          <ossindexUsername>${ossindex.username}</ossindexUsername>
+          <ossindexPassword>${ossindex.password}</ossindexPassword>
         </configuration>
         <executions>
           <execution>

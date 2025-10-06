@@ -30,7 +30,10 @@ jobs:
       - name: Publish to the Maven Central Repository
         run: |
           # Deploy main artifacts (uber JAR, sources, javadoc)
-          mvn -Prelease --batch-mode deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+          mvn -Prelease --batch-mode deploy \
+            -Dnvd.api.key=${{ secrets.NVD_API_KEY }} \
+            -Dossindex.username=${{ secrets.OSSINDEX_USERNAME }} \
+            -Dossindex.password=${{ secrets.OSSINDEX_PASSWORD }}
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
