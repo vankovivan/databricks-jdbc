@@ -16,6 +16,8 @@ jobs:
 
       - name: Set up Java for publishing to Maven Central Repository
         uses: actions/setup-java@v4
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         with:
           java-version: 11
           server-id: central
@@ -24,12 +26,6 @@ jobs:
           server-password: MAVEN_CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
-
-      - name: Configure GPG
-        run: |
-          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          gpg-connect-agent reloadagent /bye
 
       - name: Publish to the Maven Central Repository
         run: |
@@ -44,7 +40,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/databricks-jdbc-*-oss.jar
-            target/databricks-jdbc-*-sources.jar
-            target/databricks-jdbc-*-javadoc.jar
-          fail_on_unmatched_files: false
+            files: target/*.jar
