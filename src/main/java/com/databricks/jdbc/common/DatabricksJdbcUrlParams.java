@@ -167,7 +167,12 @@ public enum DatabricksJdbcUrlParams {
   IGNORE_TRANSACTIONS("IgnoreTransactions", "Ignore transaction-related method calls", "0"),
   ENABLE_METRIC_VIEW_METADATA("EnableMetricViewMetadata", "Enable metric view metadata", "0"),
   ENABLE_MULTIPLE_CATALOG_SUPPORT(
-      "enableMultipleCatalogSupport", "Enable multiple catalog support", "1");
+      "enableMultipleCatalogSupport", "Enable multiple catalog support", "1"),
+  ENABLE_SEA_SYNC_METADATA(
+      "EnableSeaSyncMetadata",
+      "Enable x-databricks-sea-can-run-fully-sync header for synchronous metadata requests in SEA mode",
+      "1");
+
   private final String paramName;
   private final String defaultValue;
   private final String description;

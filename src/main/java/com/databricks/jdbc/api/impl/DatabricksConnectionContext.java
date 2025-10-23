@@ -1077,4 +1077,9 @@ public class DatabricksConnectionContext implements IDatabricksConnectionContext
     return TelemetryLogLevel.parse(
         getParameter(DatabricksJdbcUrlParams.TELEMETRY_LOG_LEVEL), TelemetryLogLevel.DEBUG);
   }
+
+  @Override
+  public boolean isSeaSyncMetadataEnabled() {
+    return getParameter(DatabricksJdbcUrlParams.ENABLE_SEA_SYNC_METADATA).equals("1");
+  }
 }
