@@ -1,6 +1,6 @@
 # Version Changelog
 
-## [v3.0.1] - 2025-10-13
+## [v3.0.1] - 2025-10-13: DEPRECATED, Use v1.0.9-oss instead 
 ### Added
 - Added `enableMultipleCatalogSupport` connection parameter to control catalog metadata behavior.
 
@@ -11,7 +11,7 @@
 - Fixed ComplexDataTypeParser to correctly parse ISO timestamps with T separators and timezone offsets, preventing Arrow ingestion failures.
 ---
 
-## [v1.0.11-oss] - 2025-10-06
+## [v1.0.11-oss] - 2025-10-06: DEPRECATED, Use v1.0.9-oss instead
 
 ### Added
 - Enabled direct results by default in SEA mode to improve latency for short and small queries.
@@ -27,7 +27,7 @@
 - Fixed Statement.getUpdateCount() for DML queries.
 ---
 
-## [v1.0.10-oss] - 2025-09-18
+## [v1.0.10-oss] - 2025-09-18: DEPRECATED, Use v1.0.9-oss instead
 ### Added
 - **Query Tags support**: Added ability to attach key-value tags to SQL queries for analytical purposes that would appear in `system.query.history` table. Example: `jdbc:databricks://host;QUERY_TAGS=team:marketing,dashboard:abc123`. (This feature is in [private preview](https://docs.databricks.com/aws/en/release-notes/release-types#:~:text=Private%20Preview-,Invite%20only,-No))
 - **SQL Scripting support**: Added support for [SQL Scripting](https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-scripting)
