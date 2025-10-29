@@ -13,5 +13,6 @@
 - Fixed SQL syntax error when LIKE queries contain empty ESCAPE clauses.
 - Fix: driver failing to authenticate on token update in U2M flow.
 - Fix: driver failing to parse complex data types with nullable attributes.
+- Fixed: Resolved SDK token-caching regression causing token refresh on every call. SDK is now configured once to avoid excessive token endpoint hits and rate limiting.
 ---
 *Note: When making changes, please add your change under the appropriate section with a brief description.* 
