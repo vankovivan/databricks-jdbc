@@ -76,7 +76,7 @@ public class ByteConverterTest {
 
   @Test
   public void testConvertToString() throws DatabricksSQLException {
-    assertEquals(new ByteConverter().toString(NON_ZERO_OBJECT), "A");
+    assertEquals(new ByteConverter().toString(NON_ZERO_OBJECT), "65");
   }
 
   @Test
