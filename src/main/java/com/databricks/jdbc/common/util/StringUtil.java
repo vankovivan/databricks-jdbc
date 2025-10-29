@@ -69,4 +69,23 @@ public class StringUtil {
     // We need to escape '' to prevent SQL injection
     return escapeStringLiteral(String.format("/Volumes/%s/%s/%s/", catalog, schema, volume));
   }
+
+  /**
+   * Removes empty ESCAPE clauses from SQL statements to work around Databricks SQL parser
+   * limitations.
+   *
+   * <p>All other ESCAPE clauses, including custom escape characters (e.g., {@code ESCAPE '#'}), are
+   * preserved unchanged.
+   *
+   * @param sql The SQL statement to process
+   * @return SQL with empty ESCAPE clauses removed, or null if input is null
+   */
+  public static String removeRedundantEscapeClause(String sql) {
+    if (sql == null) {
+      return null;
+    }
+    // Match whitespace + ESCAPE + whitespace + empty string ('') or ("")
+    // followed by delimiter (whitespace, semicolon, end-of-string, closing paren, or comma)
+    return sql.replaceAll("(?i)\\s+ESCAPE\\s+['\"]['\"](?=\\s|;|$|\\)|,)", "");
+  }
 }

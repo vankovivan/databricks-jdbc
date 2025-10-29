@@ -726,6 +726,39 @@ public class DatabricksStatementTest {
     assertTrue(DatabricksStatement.isInsertQuery("(INSERT INTO users (id) VALUES (?))"));
   }
 
+  @Test
+  public void testRemoveEmptyEscapeClauseFromQuery() throws Exception {
+    IDatabricksConnectionContext connectionContext =
+        DatabricksConnectionContext.parse(JDBC_URL, new Properties());
+    DatabricksConnection connection = new DatabricksConnection(connectionContext, client);
+    DatabricksStatement statement = new DatabricksStatement(connection);
+
+    String sqlWithEmptyEscape = "SELECT * FROM table WHERE name LIKE 'pattern%' ESCAPE ''";
+    String expectedSql = "SELECT * FROM table WHERE name LIKE 'pattern%'";
+
+    when(client.executeStatement(
+            eq(expectedSql),
+            eq(new Warehouse(WAREHOUSE_ID)),
+            eq(new HashMap<>()),
+            eq(StatementType.QUERY),
+            any(IDatabricksSession.class),
+            eq(statement)))
+        .thenReturn(resultSet);
+
+    // Execute query with empty ESCAPE clause
+    statement.executeQuery(sqlWithEmptyEscape);
+
+    // Verify that the SQL sent to client has the ESCAPE clause removed
+    verify(client)
+        .executeStatement(
+            eq(expectedSql),
+            eq(new Warehouse(WAREHOUSE_ID)),
+            eq(new HashMap<>()),
+            eq(StatementType.QUERY),
+            any(IDatabricksSession.class),
+            eq(statement));
+  }
+
   private DatabricksConnection getTestConnection() throws DatabricksSQLException {
     IDatabricksConnectionContext connectionContext =
         DatabricksConnectionContext.parse(JDBC_URL, new Properties());

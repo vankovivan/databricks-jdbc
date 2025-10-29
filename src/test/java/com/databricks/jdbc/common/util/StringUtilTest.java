@@ -73,4 +73,17 @@ public class StringUtilTest {
     String expected = "''1'';select * from other-table";
     assertEquals(expected, StringUtil.escapeStringLiteral(sqlValue));
   }
+
+  @Test
+  public void testRemoveEmptyEscapeClause() {
+    String sql = "SELECT * FROM table WHERE name LIKE 'pattern%' ESCAPE ''";
+    String expected = "SELECT * FROM table WHERE name LIKE 'pattern%'";
+    assertEquals(expected, StringUtil.removeRedundantEscapeClause(sql));
+  }
+
+  @Test
+  public void testPreserveCustomEscapeClause() {
+    String sql = "SELECT * FROM table WHERE name LIKE 'pattern#%' ESCAPE '#'";
+    assertEquals(sql, StringUtil.removeRedundantEscapeClause(sql));
+  }
 }

@@ -785,6 +785,8 @@ public class DatabricksStatement implements IDatabricksStatement, IDatabricksSta
         () -> {
           try {
             String SQLString = escapeProcessing ? StringUtil.convertJdbcEscapeSequences(sql) : sql;
+            // Remove empty ESCAPE clauses that cause syntax errors in Databricks
+            SQLString = StringUtil.removeRedundantEscapeClause(SQLString);
             return getResultFromClient(SQLString, params, statementType);
           } catch (SQLException e) {
             throw new RuntimeException(e);

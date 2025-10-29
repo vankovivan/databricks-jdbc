@@ -10,6 +10,7 @@
 * Updated sdk version from 0.65.0 to 0.67.3
 
 ### Fixed
+- Fixed SQL syntax error when LIKE queries contain empty ESCAPE clauses.
 - Fix: driver failing to authenticate on token update in U2M flow.
 - Fix: driver failing to parse complex data types with nullable attributes.
 ---
