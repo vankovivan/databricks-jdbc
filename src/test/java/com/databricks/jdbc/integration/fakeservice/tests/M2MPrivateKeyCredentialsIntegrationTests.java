@@ -52,6 +52,7 @@ public class M2MPrivateKeyCredentialsIntegrationTests extends AbstractFakeServic
     connProps.put("Auth_KID", TEST_AUTH_KID);
     connProps.put("Auth_JWT_Key_File", TEST_JWT_KEY_FILE);
     connProps.put("Auth_JWT_Key_Passphrase", TEST_JWT_KEY_PASSPHRASE);
+    connProps.put("Auth_Scope", "all-apis");
     connProps.put(
         DatabricksJdbcUrlParams.CONN_CATALOG.getParamName(),
         FakeServiceConfigLoader.getProperty(DatabricksJdbcUrlParams.CONN_CATALOG.getParamName()));
