@@ -23,6 +23,7 @@ import com.databricks.sdk.core.oauth.OAuthM2MServicePrincipalCredentialsProvider
 import com.databricks.sdk.core.oauth.TokenCache;
 import com.databricks.sdk.core.utils.Cloud;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -282,8 +283,9 @@ public class ClientConfigurator {
    * @return true if the port is available, false otherwise
    */
   boolean isPortAvailable(int port) {
-    try (ServerSocket serverSocket = new ServerSocket(port)) {
+    try (ServerSocket serverSocket = new ServerSocket()) {
       serverSocket.setReuseAddress(true);
+      serverSocket.bind(new InetSocketAddress(port));
       return true;
     } catch (IOException e) {
       return false;
