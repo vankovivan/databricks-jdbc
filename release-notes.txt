@@ -6,7 +6,18 @@ The release notes summarize enhancements, new features, known issues, workflow c
 
 Version History ==============================================================
 
+3.0.3 ========================================================================
+Released 2025-10-30
+
+Enhancements & New Features
+
+Resolved Issues
+The following issues have been resolved in Databricks JDBC Driver 3.0.3.
+
+ * Fixed excessive calls to token endpoint during getToken.
+
 3.0.1 ========================================================================
+DEPRECATED, Use v3.0.3 instead
 
 Released 2025-10-13
 
@@ -22,6 +33,7 @@ The following issues have been resolved in Databricks JDBC Driver 3.0.1.
  * Fixed ComplexDataTypeParser to correctly parse ISO timestamps with T separators and timezone offsets, preventing Arrow ingestion failures.
 
 1.0.11 -----------------------------------------------------------------------
+DEPRECATED, Use v3.0.3 instead
 
 Released 2025-10-06
 
@@ -40,6 +52,7 @@ The following issues have been resolved in Databricks JDBC Driver 1.0.11.
  * Fixed Statement.getUpdateCount() for DML queries.
 
 1.0.10 -----------------------------------------------------------------------
+DEPRECATED, Use v3.0.3 instead
 
 Released 2025-09-18
 

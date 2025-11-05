@@ -23,6 +23,7 @@ import com.databricks.sdk.core.oauth.OAuthM2MServicePrincipalCredentialsProvider
 import com.databricks.sdk.core.oauth.TokenCache;
 import com.databricks.sdk.core.utils.Cloud;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -282,8 +283,9 @@ public class ClientConfigurator {
    * @return true if the port is available, false otherwise
    */
   boolean isPortAvailable(int port) {
-    try (ServerSocket serverSocket = new ServerSocket(port)) {
+    try (ServerSocket serverSocket = new ServerSocket()) {
       serverSocket.setReuseAddress(true);
+      serverSocket.bind(new InetSocketAddress(port));
       return true;
     } catch (IOException e) {
       return false;
@@ -377,18 +379,21 @@ public class ClientConfigurator {
                   connectionContext, new AzureServicePrincipalCredentialsProvider()));
     } else {
       databricksConfig
-          .setAuthType(DatabricksJdbcConstants.M2M_AUTH_TYPE)
           .setClientId(connectionContext.getClientId())
           .setClientSecret(connectionContext.getClientSecret());
       if (connectionContext.useJWTAssertion()) {
-        databricksConfig.setCredentialsProvider(
-            new DatabricksTokenFederationProvider(
-                connectionContext,
-                new PrivateKeyClientCredentialProvider(connectionContext, databricksConfig)));
+        CredentialsProvider jwtProvider =
+            new PrivateKeyClientCredentialProvider(connectionContext, databricksConfig);
+        databricksConfig
+            .setAuthType(jwtProvider.authType())
+            .setCredentialsProvider(
+                new DatabricksTokenFederationProvider(connectionContext, jwtProvider));
       } else {
-        databricksConfig.setCredentialsProvider(
-            new DatabricksTokenFederationProvider(
-                connectionContext, new OAuthM2MServicePrincipalCredentialsProvider()));
+        CredentialsProvider m2mProvider = new OAuthM2MServicePrincipalCredentialsProvider();
+        databricksConfig
+            .setAuthType(DatabricksJdbcConstants.M2M_AUTH_TYPE)
+            .setCredentialsProvider(
+                new DatabricksTokenFederationProvider(connectionContext, m2mProvider));
       }
     }
   }
