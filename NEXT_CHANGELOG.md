@@ -8,6 +8,7 @@
 
 ### Updated
 * Updated sdk version from 0.65.0 to 0.67.3
+* Use numeric value in string representation of TINYINT values.
 
 ### Fixed
 - Fixed SQL syntax error when LIKE queries contain empty ESCAPE clauses.
