@@ -18,6 +18,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.apache.arrow.vector.types.pojo.Field;
 import org.apache.arrow.vector.types.pojo.FieldType;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.arrow.vector.util.SchemaUtility;
+import org.apache.commons.io.IOUtils;
 
 /** Class to manage inline Arrow chunks */
 public class InlineChunkProvider implements ChunkProvider {
@@ -68,15 +70,13 @@ public class InlineChunkProvider implements ChunkProvider {
 
     // Decompress the inline data if applicable and create an ArrowResultChunk
     CompressionCodec compressionType = resultManifest.getResultCompression();
-    byte[] decompressedBytes =
+    InputStream decompressedStream =
         decompress(
-            resultData.getAttachment(),
+            new ByteArrayInputStream(resultData.getAttachment()),
             compressionType,
             "Data fetch for inline arrow batch with decompression algorithm : " + compressionType);
     this.arrowResultChunk =
-        ArrowResultChunk.builder()
-            .withInputStream(new ByteArrayInputStream(decompressedBytes), totalRows)
-            .build();
+        ArrowResultChunk.builder().withInputStream(decompressedStream, totalRows).build();
   }
 
   /** {@inheritDoc} */
@@ -157,15 +157,15 @@ public class InlineChunkProvider implements ChunkProvider {
       ByteArrayOutputStream baos)
       throws DatabricksSQLException, IOException {
     for (TSparkArrowBatch arrowBatch : arrowBatchList) {
-      byte[] decompressedBytes =
+      InputStream decompressedStream =
           decompress(
-              arrowBatch.getBatch(),
+              new ByteArrayInputStream(arrowBatch.getBatch()),
               compressionCodec,
               String.format(
                   "Data fetch for inline arrow batch [%d] and statement [%s] with decompression algorithm : [%s]",
                   arrowBatch.getRowCount(), parentStatement, compressionCodec));
       totalRows += arrowBatch.getRowCount();
-      baos.write(decompressedBytes);
+      IOUtils.copy(decompressedStream, baos);
     }
   }
 

@@ -17,6 +17,7 @@ import com.databricks.jdbc.model.client.thrift.generated.TSparkArrowResultLink;
 import com.databricks.jdbc.model.core.ExternalLink;
 import com.databricks.jdbc.telemetry.latency.TelemetryCollector;
 import com.databricks.sdk.service.sql.BaseChunkInfo;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -104,7 +105,9 @@ public class ArrowResultChunk extends AbstractArrowResultChunk {
             String.format(
                 "Data decompression for chunk index [%d] and statement [%s]",
                 this.chunkIndex, this.statementId);
-        InputStream data = DecompressionUtil.decompressToStream(compressed, compressionCodec, ctx);
+        InputStream data =
+            DecompressionUtil.decompress(
+                new ByteArrayInputStream(compressed), compressionCodec, ctx);
         initializeData(data);
       } catch (Exception e) {
         handleFailure(e, ChunkStatus.PROCESSING_FAILED);

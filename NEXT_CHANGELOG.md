@@ -7,6 +7,8 @@
 
 ### Updated
 
+* Improved memory management
+
 ### Fixed
 
 - Fix driver crash when using `INTERVAL` types.
